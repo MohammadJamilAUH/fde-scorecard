@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Twelve-question self-assessment for forward-deployed AI engineers: six axes, a radar, a level, GCC pay bands and what to build next. By Dr. Mohammad Daoud.">
+<meta property="og:title" content="FDE Readiness Scorecard">
+<meta property="og:description" content="Twelve situations from the first month at a client. Six axes. Your shape, your level, and what it pays in the GCC.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="FDE_Scorecard_Post_Image.png">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>FDE Readiness Scorecard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column, questions as numbered rows, a result panel that updates live and pins to the bottom on phones. */
+:root{
+  --bg:#f6f5f0; --paper:#ffffff; --fg:#1b2230; --muted:#5b6472; --line:#d9dad3;
+  --accent:#0b6e73; --accent-ink:#ffffff; --accent-soft:#dcecec;
+  --good:#2f7d4f; --warn:#b26a00; --crit:#b23a3a;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#13171d; --paper:#1b2027; --fg:#e8e9e4; --muted:#9aa3ad; --line:#2d343d;
+  --accent:#4fb3b7; --accent-ink:#0f1a1b; --accent-soft:#1d3436;
+  --good:#5fbf86; --warn:#e0a640; --crit:#e07070; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#13171d; --paper:#1b2027; --fg:#e8e9e4; --muted:#9aa3ad; --line:#2d343d;
+  --accent:#4fb3b7; --accent-ink:#0f1a1b; --accent-soft:#1d3436;
+  --good:#5fbf86; --warn:#e0a640; --crit:#e07070; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+.wrap{max-width:760px;margin:0 auto}
+header{padding-block:28px 18px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,6vw,44px);line-height:1.05;letter-spacing:-.01em;margin:0 0 12px;text-wrap:balance}
+.lede{font-size:17px;color:var(--muted);max-width:60ch;margin:0 0 14px}
+.byline{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:14px;color:var(--muted)}
+.byline b{color:var(--fg);font-weight:600}
+.how{margin:18px 0 0;padding:14px 16px;background:var(--accent-soft);border-radius:6px;font-size:15px}
+.how b{font-weight:600}
+
+.axis{padding-block:26px 6px;border-bottom:1px solid var(--line)}
+.axis-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.axis-head h2{font-family:var(--display);font-weight:700;font-size:20px;margin:0}
+.axis-head .tag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.axis-why{color:var(--muted);font-size:14px;margin:0 0 14px;max-width:62ch}
+.q{margin:0 0 18px}
+.q p{margin:0 0 8px;font-weight:600}
+.opts{display:grid;gap:6px}
+.opt{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);cursor:pointer;font-size:15px;line-height:1.4}
+.opt input{margin:4px 0 0;accent-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.opt .lvl{font-family:var(--mono);font-size:11px;color:var(--muted);display:block;margin-top:3px}
+
+.result{position:sticky;bottom:0;margin-top:28px;background:var(--paper);border:1px solid var(--line);border-radius:10px 10px 0 0;
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(0,0,0,.08)}
+.result-grid{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center}
+@media (max-width:560px){.result-grid{grid-template-columns:120px 1fr}}
+canvas{width:100%;height:auto;max-width:100%;display:block}
+.score{font-family:var(--display);font-weight:800;font-size:34px;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.score small{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--muted);letter-spacing:0}
+.verdict{font-family:var(--display);font-weight:700;font-size:18px;margin:4px 0 2px}
+.band{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.progress{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{font:600 14px var(--body);padding:9px 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toast{font-size:13px;color:var(--muted);align-self:center}
+
+.detail{margin-top:24px;display:none}
+.detail.show{display:block}
+.detail h2{font-family:var(--display);font-size:22px;margin:0 0 6px}
+.detail p.sub{color:var(--muted);margin:0 0 14px}
+.rows{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper)}
+@media (max-width:560px){.row{grid-template-columns:1fr}}
+.row .name{font-weight:600}
+.row .bar{height:6px;background:var(--line);border-radius:3px;margin:6px 0 6px;overflow:hidden}
+.row .bar i{display:block;height:100%;background:var(--accent)}
+.row .pts{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.row .fix{font-size:14px}
+.bands{margin-top:22px}
+.bands table{width:100%;border-collapse:collapse;font-size:14px}
+.bands th,.bands td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.bands th{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.bands td.m{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.note{font-size:13px;color:var(--muted);margin-top:8px}
+.recruit{margin-top:28px;padding:16px;border:1px dashed var(--line);border-radius:8px}
+.recruit h3{font-family:var(--display);font-size:17px;margin:0 0 6px}
+.recruit p{margin:0;font-size:14px;color:var(--muted)}
+footer{margin-top:28px;padding-block:18px 8px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+footer b{color:var(--fg);font-weight:600}
+@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .12s,box-shadow .12s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="eyebrow">Forward Deployed Engineering · self-assessment</p>
+  <h1>FDE Readiness Scorecard</h1>
+  <p class="lede">Twelve situations a forward-deployed engineer meets in the first month at a client. Pick the answer closest to what you would actually do. Your shape, score and level update as you go.</p>
+  <div class="byline"><span>By <b>Dr. Mohammad Daoud</b></span><span>AI Leader, forward-deployed inside a UAE federal client through GBM</span><span>October 2026</span></div>
+  <p class="how"><b>How to read it.</b> Six axes, two questions each, four levels per question. The levels describe behaviour, not years. Nothing you enter leaves your browser.</p>
+</header>
+
+<main id="quiz"></main>
+
+<section class="result" id="result" aria-live="polite">
+  <div class="result-grid">
+    <canvas id="radar" width="400" height="400" aria-label="Radar chart of your six axis scores"></canvas>
+    <div>
+      <div class="score"><span id="total">0</span><small> / 48</small></div>
+      <div class="verdict" id="verdict">Answer the twelve questions</div>
+      <div class="band" id="band">Your level and its GCC pay band appear here</div>
+      <div class="progress" id="progress">0 of 12 answered</div>
+      <div class="actions">
+        <button id="copy" type="button">Copy my result</button>
+        <button id="reset" type="button" class="ghost">Start again</button>
+        <span class="toast" id="toast"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="detail" id="detail">
+  <h2>Where to build next</h2>
+  <p class="sub">One line per axis, weakest first. Each is something you can go and do this month.</p>
+  <div class="rows" id="rows"></div>
+
+  <div class="bands">
+    <h2>Levels and what they pay in the GCC</h2>
+    <table>
+      <thead><tr><th>Score</th><th>Level</th><th>What the seat owns</th><th>Monthly base, AED</th></tr></thead>
+      <tbody>
+        <tr><td class="m">12–20</td><td>Solutions Engineer</td><td>Demos, pilots and technical pre-sales; delivery owned by others</td><td class="m">25k–45k</td></tr>
+        <tr><td class="m">21–30</td><td>Emerging FDE</td><td>Ships inside the client's environment with a senior engineer covering latency, cost and evals</td><td class="m">40k–65k</td></tr>
+        <tr><td class="m">31–40</td><td>Forward Deployed Engineer</td><td>Owns one client outcome end to end: discovery, build, production, adoption, measurement</td><td class="m">55k–85k</td></tr>
+        <tr><td class="m">41–48</td><td>Deployment Lead</td><td>Owns the account's AI programme and a pod of two to five; the person the client's executive calls</td><td class="m">80k–130k</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Bands are what I have seen in UAE and KSA postings and conversations in October 2026 for AI-focused forward-deployed seats at vendors, integrators and consultancies: base salary only, before bonus, equity, housing and schooling. Government and family-office seats sit lower; US-headquartered AI labs sit higher. Treat them as a starting point for a conversation, not a rate card.</p>
+  </div>
+
+  <div class="recruit">
+    <h3>Hiring with this</h3>
+    <p>Each question is a screening question with a model answer at level four. Ask the two from the axis your account is weakest on; a candidate who answers at level three or above on both can be trusted with that axis unsupervised.</p>
+  </div>
+</section>
+
+<footer>
+  <b>Dr. Mohammad Daoud</b> · AI leader, Ph.D. (NLP) · two years forward-deployed inside a UAE federal client through GBM: production agentic AI, risk scoring and knowledge graphs, with 55M AED in exposure prevented and 7,000+ hours released annually. The scorecard is free to use and share with attribution.
+</footer>
+</div>
+
+<script>
+(function(){
+const AXES=[
+ {key:"latency",name:"Latency & serving",why:"The client's first complaint is always speed. Can you find where the time goes and fix it with the cheap levers first?",
+  fix:"Trace one slow request end to end this week: retrieval, prefill, generation, tool calls. Set a time-to-first-token budget and turn on streaming and prefix caching.",
+  qs:[
+   {t:"A customer says the assistant has become too slow. You:",o:[
+     "Ask the platform team to look at it and relay what they find.",
+     "Suggest switching to a smaller or faster model.",
+     "Trace a request and find whether the time is in retrieval, prefill, generation or a tool call, then fix that part.",
+     "Already have a latency budget per stage, stream tokens, cache the shared prefix, and can show which stage breached and why."]},
+   {t:"Someone asks what KV caching and prefix caching actually do. You:",o:[
+     "Know they make things faster.",
+     "Explain that attention state is stored so the model does not recompute earlier tokens.",
+     "Explain what is cached, why prefill is where time-to-first-token goes, and when prefix reuse applies across requests.",
+     "Have configured it on a serving stack, measured the gain, and know when a long shared prefix hurts throughput."]}]},
+ {key:"cost",name:"Cost",why:"The CFO's question arrives in month two. Ten times cheaper without a quality drop is a design problem, not a procurement one.",
+  fix:"Build a per-use-case cost report: tokens in, tokens out, cache hits, model mix. The first 3x usually comes from prompts and outputs that are longer than they need to be.",
+  qs:[
+   {t:"The client says the LLM spend is unsustainable and wants it cut by an order of magnitude. You:",o:[
+     "Negotiate a better rate with the provider.",
+     "Move everything to a cheaper model and see what breaks.",
+     "Measure where tokens go, shorten prompts and outputs, cache, route easy requests to a small model, and batch offline work, with evals guarding quality.",
+     "Do all of that and model the break-even for self-hosting the high-volume tier, with an ops plan and a quality floor per use case."]},
+   {t:"Designing a multi-model router or cascade. You:",o:[
+     "Use the best model for everything to be safe.",
+     "Pick a cheap model for simple questions and an expensive one for hard ones, by instinct.",
+     "Classify requests, send each class to the cheapest model that meets its quality floor, escalate on low confidence or failed validation, and log everything.",
+     "Run that cascade in production with thresholds tuned against an eval suite and a cost-per-task dashboard the client reads."]}]},
+ {key:"privacy",name:"Privacy & sovereignty",why:"Government, banks and healthcare will not let data leave. This axis separates people who have deployed there from people who have used APIs.",
+  fix:"Design one architecture on paper where no identifying data leaves the client boundary, and know the cost of each option: redaction layer, private endpoint, self-hosted open-weight model.",
+  qs:[
+   {t:"A customer forbids sending any personal data to an external LLM API. You propose:",o:[
+     "A contract clause with the provider promising no retention.",
+     "A private endpoint in the customer's cloud region.",
+     "A redaction and tokenisation layer before any external call, or a self-hosted open-weight model inside the boundary, chosen by sensitivity and budget.",
+     "Have run a fully air-gapped stack on open-weight models with no external connectivity, and can say what quality it costs and how to close the gap."]},
+   {t:"Which regulations and standards shape your design in regulated sectors?",o:[
+     "The customer's legal team tells you what applies.",
+     "Data-protection law and the customer's information-security policy.",
+     "Those plus the AI-specific frameworks: ISO/IEC 42001, NIST AI RMF, the EU AI Act, national data-sovereignty rules, mapped to concrete controls.",
+     "Have written the evaluation, guardrail and monitoring standards a regulated organisation adopted, and audited a system against them."]}]},
+ {key:"quality",name:"Quality & evaluation",why:"Everyone says they have evals. Few can describe a suite that caught a silent regression after a model upgrade.",
+  fix:"Turn the last ten production failures into a versioned test set with a pinned judge, and run it on the next prompt or model change before it ships.",
+  qs:[
+   {t:"The provider deprecates the model you use. How do you know the replacement is not quietly worse?",o:[
+     "Try a few prompts and compare by eye.",
+     "Run the demo scenarios and check nothing obvious broke.",
+     "Run a versioned eval set built from real traffic and known failures, exact-match where possible and rubric or judge scoring where not, and compare per category.",
+     "That suite runs on every prompt, model, index or tool change, with a pinned judge, drift alerts in production, and every incident added as a new case."]},
+   {t:"Why do LLMs hallucinate, and what do you do about it?",o:[
+     "They make things up sometimes; you add a disclaimer.",
+     "They predict plausible text; you use retrieval so they have the facts.",
+     "They fill gaps with plausible text; you ground answers in retrieved sources with citations, constrain output structure and validate it, and know each technique's cost.",
+     "You measure the hallucination rate per use case, choose the mix of grounding, validation and verifier passes against that number, and report it to the client."]}]},
+ {key:"client",name:"Client leadership",why:"The job is done in someone else's office. Discovery, a metric, the word no, and staying until the number moves.",
+  fix:"Write a one-page engagement plan for your current client: the problem, the target metric and baseline, the sponsor, the first milestone, and the use case you will refuse.",
+  qs:[
+   {t:"The client's executive asks for an AI assistant because a competitor has one. You:",o:[
+     "Build it; the sponsor asked for it.",
+     "Build a quick prototype and see whether people use it.",
+     "Run discovery first: which decision or workflow it would change, what the metric and baseline are, who owns the outcome, and whether another use case is worth more.",
+     "Have declined a sponsored use case on those grounds and redirected the budget to one that moved a number the executive now quotes."]},
+   {t:"How do you earn autonomy for an AI system from a skeptical client?",o:[
+     "Show accuracy figures from the vendor.",
+     "Run a pilot and present the results.",
+     "Map decisions by reversibility and blast radius, run in shadow mode against the human baseline, then stage autonomy: recommend, approve, notify, act within thresholds.",
+     "Have taken a system through that ladder in a risk-averse organisation, with the controls, audit trail and kill switch the risk function signed off."]}]},
+ {key:"scale",name:"Production scale",why:"A proof of concept on fifty documents is not a product. Millions of documents with access control is a data engineering problem.",
+  fix:"Separate retrieval evaluation from generation evaluation on your current RAG system, then add metadata filters and hybrid search; those two changes fix most scale complaints.",
+  qs:[
+   {t:"The RAG proof of concept works on 50 documents. The client has five million. You:",o:[
+     "Load them all into the same vector store and see.",
+     "Pick a bigger vector database and chunk the documents.",
+     "Build a pipeline: incremental ingestion, chunking per document type, metadata and access-control filters, hybrid search, re-ranking, retrieval evals separate from generation, caching and a re-index plan.",
+     "Have operated retrieval over millions of documents in production and know where it failed first: permissions, stale indexes, embedding changes, and the long tail of document formats."]},
+   {t:"The client asks whether to self-host an open-weight model or pay an API provider. You:",o:[
+     "Recommend the API; it is simpler.",
+     "Recommend self-hosting; it is cheaper at scale.",
+     "Model volume, latency tolerance, data constraints, quality needed and the ops team required, and give a break-even with a recommendation per workload.",
+     "Have run both in production, including open-weight models on your own GPUs, and can say what each actually cost in people and money."]}]}
+];
+const LEVELS=[{min:12,name:"Solutions Engineer",band:"AED 25k–45k base"},{min:21,name:"Emerging FDE",band:"AED 40k–65k base"},{min:31,name:"Forward Deployed Engineer",band:"AED 55k–85k base"},{min:41,name:"Deployment Lead",band:"AED 80k–130k base"}];
+const quiz=document.getElementById("quiz");
+let n=0;
+AXES.forEach((ax,ai)=>{
+  const s=document.createElement("section");s.className="axis";
+  s.innerHTML=`<div class="axis-head"><h2>${ax.name}</h2><span class="tag">axis ${ai+1} of 6 · 8 points</span></div><p class="axis-why">${ax.why}</p>`;
+  ax.qs.forEach((q,qi)=>{
+    n++;const d=document.createElement("div");d.className="q";
+    const name=`q${ai}_${qi}`;
+    d.innerHTML=`<p>${n}. ${q.t}</p><div class="opts">${q.o.map((o,oi)=>`<label class="opt"><input type="radio" name="${name}" id="${name}_${oi}" value="${oi+1}"><span>${o}<span class="lvl">level ${oi+1}</span></span></label>`).join("")}</div>`;
+    s.appendChild(d);
+  });
+  quiz.appendChild(s);
+});
+const totalEl=document.getElementById("total"),verdictEl=document.getElementById("verdict"),bandEl=document.getElementById("band"),progEl=document.getElementById("progress"),detail=document.getElementById("detail"),rows=document.getElementById("rows"),toast=document.getElementById("toast");
+const cv=document.getElementById("radar"),ctx=cv.getContext("2d");
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function scores(){
+  return AXES.map((ax,ai)=>{let s=0,a=0;ax.qs.forEach((q,qi)=>{const c=document.querySelector(`input[name="q${ai}_${qi}"]:checked`);if(c){s+=+c.value;a++}});return{ax,s,a}});
+}
+function draw(sc){
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=W*0.34;const k=6;
+  ctx.clearRect(0,0,W,H);
+  const line=css("--line"),fg=css("--fg"),muted=css("--muted"),acc=css("--accent");
+  ctx.lineWidth=1;ctx.strokeStyle=line;
+  for(let r=1;r<=4;r++){ctx.beginPath();for(let i=0;i<k;i++){const a=-Math.PI/2+i*2*Math.PI/k,x=cx+Math.cos(a)*R*r/4,y=cy+Math.sin(a)*R*r/4;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.stroke()}
+  for(let i=0;i<k;i++){const a=-Math.PI/2+i*2*Math.PI/k;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);ctx.stroke()}
+  ctx.fillStyle=muted;ctx.font="500 13px IBM Plex Mono, Menlo, monospace";ctx.textAlign="center";ctx.textBaseline="middle";
+  const lab=["Latency","Cost","Privacy","Quality","Client","Scale"];
+  for(let i=0;i<k;i++){const a=-Math.PI/2+i*2*Math.PI/k,x=cx+Math.cos(a)*(R+26),y=cy+Math.sin(a)*(R+22);ctx.fillText(lab[i],x,y)}
+  const any=sc.some(v=>v.a>0);
+  ctx.beginPath();
+  sc.forEach((v,i)=>{const a=-Math.PI/2+i*2*Math.PI/k;const val=v.a? v.s/8 : 0;const x=cx+Math.cos(a)*R*val,y=cy+Math.sin(a)*R*val;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+  ctx.closePath();
+  ctx.fillStyle=acc;ctx.globalAlpha=any?0.22:0.06;ctx.fill();ctx.globalAlpha=1;
+  ctx.strokeStyle=acc;ctx.lineWidth=any?2.5:1;ctx.stroke();
+  sc.forEach((v,i)=>{if(!v.a)return;const a=-Math.PI/2+i*2*Math.PI/k;const val=v.s/8;ctx.beginPath();ctx.arc(cx+Math.cos(a)*R*val,cy+Math.sin(a)*R*val,4,0,7);ctx.fillStyle=acc;ctx.fill()});
+}
+let last=null;
+function update(){
+  const sc=scores();const answered=sc.reduce((t,v)=>t+v.a,0);const total=sc.reduce((t,v)=>t+v.s,0);
+  totalEl.textContent=total;progEl.textContent=`${answered} of 12 answered`;
+  draw(sc);
+  if(answered===12){
+    const lv=[...LEVELS].reverse().find(l=>total>=l.min);
+    verdictEl.textContent=lv.name;bandEl.textContent=`${lv.band} · GCC, October 2026`;
+    detail.classList.add("show");
+    rows.innerHTML=[...sc].sort((a,b)=>a.s-b.s).map(v=>`<div class="row"><div><div class="name">${v.ax.name}</div><div class="bar"><i style="width:${v.s/8*100}%"></i></div><div class="pts">${v.s} / 8</div></div><div class="fix">${v.s>=7?"Strong. Use it to cover a weaker axis in your next engagement.":v.ax.fix}</div></div>`).join("");
+    last={total,lv,sc};
+  } else {
+    verdictEl.textContent=answered?"Keep going":"Answer the twelve questions";bandEl.textContent="Your level and its GCC pay band appear here";detail.classList.remove("show");last=null;
+  }
+}
+quiz.addEventListener("change",update);
+document.getElementById("reset").addEventListener("click",()=>{quiz.querySelectorAll("input").forEach(i=>i.checked=false);update();window.scrollTo({top:0,behavior:"smooth"})});
+document.getElementById("copy").addEventListener("click",()=>{
+  if(!last){toast.textContent="Finish the twelve questions first.";return}
+  const weakest=[...last.sc].sort((a,b)=>a.s-b.s)[0].ax.name;
+  const txt=`FDE Readiness Scorecard: ${last.total}/48, ${last.lv.name}.\n`+last.sc.map(v=>`${v.ax.name} ${v.s}/8`).join(" · ")+`\nWeakest axis: ${weakest}.\nScorecard by Dr. Mohammad Daoud. ${location.href.split("#")[0]}`;
+  const done=()=>{toast.textContent="Copied. Paste it into your post."};
+  const fail=()=>{const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();toast.textContent="Select and copy the text.";setTimeout(()=>ta.remove(),8000)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,fail)}else fail();
+});
+const mq=matchMedia("(prefers-color-scheme: dark)");mq.addEventListener&&mq.addEventListener("change",update);
+new MutationObserver(update).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+document.fonts&&document.fonts.ready.then(update);
+update();
+})();
+</script>
+
+</body>
+</html>
